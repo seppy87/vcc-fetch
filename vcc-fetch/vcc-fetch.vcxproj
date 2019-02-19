@@ -70,10 +70,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;$(IncludePath);C:\lib\poco-develop\SQL\include;C:\lib\poco-develop\SQL\SQLite\include;C:\lib\poco-develop\Data\include;C:\lib\poco-develop\Data\SQLite\include;C:\lib\poco-develop\SevenZip\include;C:\Users\User\Downloads\boost.1.68.0.0\lib\native\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;C:\lib\poco-develop\NetSSL_OpenSSL\include;C:\lib\poco-develop\Net\include;C:\Users\User\Desktop\fertig\includes\openssl\include;C:\lib\poco-develop\Crypto\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;C:\lib\poco-develop\NetSSL_OpenSSL\include;C:\lib\poco-develop\Net\include;C:\Users\User\Desktop\fertig\includes\openssl\include;C:\lib\poco-develop\Crypto\include;$(IncludePath);C:\lib\poco-develop\SQL\include;C:\lib\poco-develop\SQL\SQLite\include;C:\lib\poco-develop\Data\include;C:\lib\poco-develop\Data\SQLite\include;C:\lib\poco-develop\SevenZip\include;C:\Users\User\Downloads\boost.1.68.0.0\lib\native\include</IncludePath>
     <LibraryPath>C:\lib\poco-develop\lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

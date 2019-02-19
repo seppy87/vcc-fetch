@@ -18,7 +18,16 @@
 #include "Poco/Net/InvalidCertificateHandler.h"
 #include "Poco/Net/Context.h"
 #include "Poco/Net/SSLManager.h"
+#include<Poco/File.h>
+#include<Poco/Timespan.h>
+#include<Poco/Data/Session.h>
+#include<Poco/Data/SQLite/Connector.h>
+#include<Poco/SevenZip/Archive.h>
+#include<Poco/Delegate.h>
+#include<tuple>
 #include<iostream>
+#include<exception>
+#include<algorithm>
 
 enum class FuncTarget : unsigned int {
 	DATABASE_UPDATE = 0,
@@ -28,7 +37,9 @@ enum class FuncTarget : unsigned int {
 class Application : public Poco::Util::Application {
 private:
 	std::vector<std::string> libname;
+	std::vector<std::string> dependencies;
 	std::string action;
+	bool ExtractSuccess = true;
 protected:
 	void initialize(Poco::Util::Application& application);
 	void uninitialize();
@@ -36,8 +47,17 @@ protected:
 	int main(const std::vector<std::string>& arguments);
 	void setOption(const std::string& key, const std::string& value);
 	void addLib(const std::string& useless, const std::string& value);
-	inline std::string HasOption(std::string key);
-	bool downloadFile(FuncTarget target = FuncTarget::LIBRARIES);
+	inline std::string HasOption(std::string name);
+	bool downloadFile(FuncTarget target = FuncTarget::LIBRARIES, std::string filepath = "");
 	void setAction(const std::string& key, const std::string& val);
 	void showHelp(const std::string &key, const std::string& val);
+	std::string checkfile();
+	std::vector<std::tuple<std::string, std::string, std::string, std::string,std::string>> searchLibs(std::string name);
+	std::tuple<std::string, std::string, std::string, std::string> searchLibByID(std::string id);
+	void extractFile(std::string filepath);
+	void onExtractError(const Poco::SevenZip::Archive::FailedEventArgs& args);
+	void onSevenZipSuccess(const Poco::SevenZip::Archive::ExtractedEventArgs& args);
+	void prepareDependencies();
+	std::string getSourceByLibId(std::string id);
+	static void removeZeros(std::vector<std::string>& vec);
 };

@@ -1,1 +1,65 @@
-﻿  vcc-fetch.vcxproj -> C:\Users\User\source\repos\vcc-fetch\x64\Debug\vcc-fetch.exe
+﻿  Application.cpp
+c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(1527): warning C4150: Löschen eines Zeigers auf den nicht definierten Typ "Poco::Net::PrivateKeyPassphraseHandler". Destruktor wurde nicht aufgerufen.
+  c:\lib\poco-develop\netssl_openssl\include\poco\net\privatekeyfactory.h(28): note: Siehe Deklaration von "Poco::Net::PrivateKeyPassphraseHandler"
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(1284): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "void std::shared_ptr<C>::_Setp<_Ux>(_Ux *,std::false_type)".
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler,
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(1284): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "void std::shared_ptr<C>::_Setp<_Ux>(_Ux *,std::false_type)".
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler,
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\lib\poco-develop\foundation\include\poco\sharedptr.h(48): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "std::shared_ptr<C>::shared_ptr<C,0>(_Ux *)".
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler,
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\lib\poco-develop\foundation\include\poco\sharedptr.h(47): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "std::shared_ptr<C>::shared_ptr<C,0>(_Ux *)".
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler,
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\lib\poco-develop\foundation\include\poco\sharedptr.h(46): note: Bei der Kompilierung von Klasse Vorlage der Poco::SharedPtr<Poco::Net::PrivateKeyPassphraseHandler>::SharedPtr(C *)-Memberfunktion
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\users\user\source\repos\vcc-fetch\vcc-fetch\application.cpp(117): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "Poco::SharedPtr<Poco::Net::PrivateKeyPassphraseHandler>::SharedPtr(C *)".
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\lib\poco-develop\netssl_openssl\include\poco\net\sslmanager.h(308): note: Siehe Verweis auf die Klasse Vorlage-Instanziierung "Poco::SharedPtr<Poco::Net::PrivateKeyPassphraseHandler>", die kompiliert wird.
+c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(885): warning C4150: Löschen eines Zeigers auf den nicht definierten Typ "Poco::Net::PrivateKeyPassphraseHandler". Destruktor wurde nicht aufgerufen.
+  c:\lib\poco-develop\netssl_openssl\include\poco\net\privatekeyfactory.h(28): note: Siehe Deklaration von "Poco::Net::PrivateKeyPassphraseHandler"
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(884): note: Bei der Kompilierung von Klasse Vorlage der void std::_Ref_count<_Ux>::_Destroy(void) noexcept-Memberfunktion
+          with
+          [
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(1525): note: Siehe Verweis auf die Klasse Vorlage-Instanziierung "std::_Ref_count<_Ux>", die kompiliert wird.
+          with
+          [
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(1284): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "void std::shared_ptr<C>::_Setp<_Ux>(_Ux *,std::false_type)".
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler,
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\memory(1284): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-Vorlage "void std::shared_ptr<C>::_Setp<_Ux>(_Ux *,std::false_type)".
+          with
+          [
+              C=Poco::Net::PrivateKeyPassphraseHandler,
+              _Ux=Poco::Net::PrivateKeyPassphraseHandler
+          ]
+  main.cpp
+  Code wird generiert...
+  vcc-fetch.vcxproj -> C:\Users\User\source\repos\vcc-fetch\x64\Debug\vcc-fetch.exe
