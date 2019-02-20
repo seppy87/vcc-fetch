@@ -26,5 +26,8 @@
     <ClCompile Include="Application.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="standalone.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

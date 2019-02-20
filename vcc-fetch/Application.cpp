@@ -50,8 +50,28 @@ void Application::defineOptions(Poco::Util::OptionSet& optionSet) {
 		Option("update","","Updates the database",false).repeatable(false).group("ActionGroup").noArgument().callback(OptionCallback<Application>(this,&Application::setAction))
 	);
 	optionSet.addOption(
+		Option("git","","GIT CLONE",false).repeatable(true).argument("git").callback(OptionCallback<Application>(this,&Application::gitclone))
+	);
+	optionSet.addOption(
 		Option("help","h","HELP").repeatable(false).noArgument().required(false).callback(OptionCallback<Application>(this,&Application::showHelp))
 	);
+}
+
+void Application::gitclone(const std::string& arg, const std::string& url) {
+
+	this->action = "GIT";
+	git_libgit2_init();
+	git_repository* repo = NULL;
+	git_clone_options opt = GIT_CLONE_OPTIONS_INIT;
+	opt.checkout_opts.progress_cb = &standalone::progress;
+	opt.checkout_opts.progress_payload = (void*)this;
+	opt.fetch_opts.callbacks.transfer_progress = &standalone::fetch_progress;
+	opt.fetch_opts.callbacks.payload = this;
+	int ret = git_clone(&repo, url.c_str(), this->config().getString("target").c_str(), &opt);
+	
+	git_repository_free(repo);
+	git_libgit2_shutdown();
+	return;
 }
 
 /// <summary>
@@ -102,13 +122,15 @@ void Application::addLib(const std::string& useless, const std::string& key) {
 	this->libname.insert(libname.end(), key);
 }
 
+
 /// <summary>
 /// Downloads the file.
 /// </summary>
-/// <param name="target">To determine whether to download the Database Update or to download a library</param>
-/// <param name="filepath">Library name.</param>
+/// <param name="target">The target.</param>
+/// <param name="filepath">The Destination filepath.</param>
+/// <param name="filename">The filename.</param>
 /// <returns></returns>
-bool Application::downloadFile(FuncTarget target, std::string filepath) {
+bool Application::downloadFile(FuncTarget target, std::string filepath, std::string filename) {
 	Poco::Net::HTTPStreamFactory::registerFactory();
 	Poco::Net::HTTPSStreamFactory::registerFactory();
 	Poco::Net::initializeSSL();
@@ -134,7 +156,7 @@ bool Application::downloadFile(FuncTarget target, std::string filepath) {
 		auto is = opener.open(uri);
 		Poco::File dir("temp");
 		dir.createDirectory();
-		std::ofstream file("temp/tmp.7z", std::ios::out | std::ios::trunc | std::ios::binary);
+		std::ofstream file("temp/"+filename+".7z", std::ios::out | std::ios::trunc | std::ios::binary);
 		Poco::StreamCopier::copyStream(*is, file);
 		file.close();
 	}
@@ -156,6 +178,7 @@ bool Application::downloadFile(FuncTarget target, std::string filepath) {
 /// <returns>ERROR CODE</returns>
 int Application::main(const std::vector<std::string>& arguments) {
 	auto text = this->config().getString("target");
+	if (this->action == "GIT") return ERROR_SUCCESS;
 	std::cout << "Target dir is " << HasOption("target") << '\n'
 		<<"Library will be (static||dynamic) " << Application::HasOption("library")<<'\n'
 		<< "The Architecture is " << HasOption( "architecture") << '\n'

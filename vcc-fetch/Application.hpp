@@ -28,12 +28,19 @@
 #include<iostream>
 #include<exception>
 #include<algorithm>
+#include<git2.h>
 
 enum class FuncTarget : unsigned int {
 	DATABASE_UPDATE = 0,
 	LIBRARIES = 1,
 };
 
+namespace standalone {
+	void progress(const char* path, size_t cur, size_t tot, void* payload);
+	int fetch_progress(
+		const git_transfer_progress *stats,
+		void *payload);
+}
 class Application : public Poco::Util::Application {
 private:
 	std::vector<std::string> libname;
@@ -48,7 +55,7 @@ protected:
 	void setOption(const std::string& key, const std::string& value);
 	void addLib(const std::string& useless, const std::string& value);
 	inline std::string HasOption(std::string name);
-	bool downloadFile(FuncTarget target = FuncTarget::LIBRARIES, std::string filepath = "");
+	bool downloadFile(FuncTarget target = FuncTarget::LIBRARIES, std::string filepath = "", std::string filename = "tmp");
 	void setAction(const std::string& key, const std::string& val);
 	void showHelp(const std::string &key, const std::string& val);
 	std::string checkfile();
@@ -60,4 +67,7 @@ protected:
 	void prepareDependencies();
 	std::string getSourceByLibId(std::string id);
 	static void removeZeros(std::vector<std::string>& vec);
+
+	//git clone
+	void gitclone(const std::string& arg, const std::string& url);
 };

@@ -70,11 +70,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;$(IncludePath);C:\lib\poco-develop\SQL\include;C:\lib\poco-develop\SQL\SQLite\include;C:\lib\poco-develop\Data\include;C:\lib\poco-develop\Data\SQLite\include;C:\lib\poco-develop\SevenZip\include;C:\Users\User\Downloads\boost.1.68.0.0\lib\native\include</IncludePath>
+    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;$(IncludePath);C:\lib\poco-develop\SQL\include;C:\lib\poco-develop\SQL\SQLite\include;C:\lib\poco-develop\Data\include;C:\lib\poco-develop\Data\SQLite\include;C:\lib\poco-develop\SevenZip\include;C:\Users\User\Downloads\boost.1.68.0.0\lib\native\include;C:\Users\User\source\repos\vcc-fetch\vcc-fetch\git-debug;C:\Users\User\source\repos\vcc-fetch\vcc-fetch\git2\git2;C:\Users\User\source\repos\vcc-fetch\vcc-fetch\git2</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;C:\lib\poco-develop\NetSSL_OpenSSL\include;C:\lib\poco-develop\Net\include;C:\Users\User\Desktop\fertig\includes\openssl\include;C:\lib\poco-develop\Crypto\include;$(IncludePath);C:\lib\poco-develop\SQL\include;C:\lib\poco-develop\SQL\SQLite\include;C:\lib\poco-develop\Data\include;C:\lib\poco-develop\Data\SQLite\include;C:\lib\poco-develop\SevenZip\include;C:\Users\User\Downloads\boost.1.68.0.0\lib\native\include</IncludePath>
-    <LibraryPath>C:\lib\poco-develop\lib64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\lib\poco-develop\Foundation\include;C:\lib\poco-develop\Util\include;C:\lib\poco-develop\NetSSL_OpenSSL\include;C:\lib\poco-develop\Net\include;C:\Users\User\Desktop\fertig\includes\openssl\include;C:\lib\poco-develop\Crypto\include;$(IncludePath);C:\lib\poco-develop\SQL\include;C:\lib\poco-develop\SQL\SQLite\include;C:\lib\poco-develop\Data\include;C:\lib\poco-develop\Data\SQLite\include;C:\lib\poco-develop\SevenZip\include;C:\Users\User\Downloads\boost.1.68.0.0\lib\native\include;C:\Users\User\source\repos\vcc-fetch\vcc-fetch\git-debug;C:\Users\User\source\repos\vcc-fetch\vcc-fetch\git2\git2;C:\Users\User\source\repos\vcc-fetch\vcc-fetch\git2</IncludePath>
+    <LibraryPath>C:\lib\poco-develop\lib64;C:\Users\User\source\repos\vcc-fetch\vcc-fetch\git-debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,6 +92,9 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>git2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -127,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="standalone.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
