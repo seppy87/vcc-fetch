@@ -1,6 +1,12 @@
 #include"Application.hpp"
 #include<fstream>
 #include<boost/algorithm/string.hpp>
+//#include <Poco/Zip/Compress.h>
+#include <locale>
+#include <codecvt>
+
+
+
 
 /// <summary>
 /// Initializes the specified application.
@@ -50,13 +56,320 @@ void Application::defineOptions(Poco::Util::OptionSet& optionSet) {
 		Option("update","","Updates the database",false).repeatable(false).group("ActionGroup").noArgument().callback(OptionCallback<Application>(this,&Application::setAction))
 	);
 	optionSet.addOption(
+		Option("pack","","Packs the Code for uploading",false).repeatable(false).group("ActionGroup").argument("packagename",true).callback(OptionCallback<Application>(this,&Application::setPackAction))
+	);
+	optionSet.addOption(
 		Option("git","","GIT CLONE",false).repeatable(true).argument("git").callback(OptionCallback<Application>(this,&Application::gitclone))
 	);
 	optionSet.addOption(
 		Option("help","h","HELP").repeatable(false).noArgument().required(false).callback(OptionCallback<Application>(this,&Application::showHelp))
 	);
+	optionSet.addOption(
+		Option("bin","","BINARY Directory. Need to have the LIB and DLL if Dynamic").repeatable(false).argument("bindir",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
+	optionSet.addOption(
+		Option("source","","Source Path",false).repeatable(false).argument("source",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
+	optionSet.addOption(
+		Option("include","","Include Path",false).repeatable(false).argument("include",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
+	optionSet.addOption(
+		Option("lang","","Sets Programming Language",false).repeatable(false).argument("lang",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
+	optionSet.addOption(
+		Option("debugstatic","dlib","Sets The Debug .lib File - Path with Filename",false).repeatable(false).argument("debugstatic",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
+	optionSet.addOption(
+		Option("releasestatic","rlib","Sets the Release .lib File - Path with Filename",false).repeatable(false).argument("releasestatic",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
+	optionSet.addOption(
+		Option("debugdynamic","dynlib","Sets the Path to Dynamic Debug libraries. Path without filename",false).repeatable(false).argument("debugdynamic",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
+	optionSet.addOption(
+		Option("releasedynamic","dynlibr","Sets the Path to Dynamic Release libraries. Path without filename",false).repeatable(false).argument("releasedynamic",true).callback(OptionCallback<Application>(this,&Application::setOption))
+	);
 }
 
+/// <summary>
+/// Sets the pack action.
+/// </summary>
+/// <param name="arg">The argument.</param>
+/// <param name="value">The value.</param>
+void Application::setPackAction(const std::string& arg, const std::string& value) {
+	this->action = "package";
+	this->config().setString(arg, value);
+}
+
+/// <summary>
+/// Packs the code for uploading.
+/// </summary>
+void Application::packCode() {
+	auto language = boost::algorithm::to_lower_copy(this->config().getString("lang"));
+	if (language == "c++") {
+		this->packCPP();
+		return;
+	}
+}
+
+/// <summary>
+/// Packs CPP code for uploading.
+/// </summary>
+void Application::packCPP() {
+	using namespace Poco;
+	std::vector<std::string> ext_source{ "cpp","cxx","c" };
+	std::vector<std::string> ext_headers{ "h","hpp" };
+	//Iterate Source files
+	DirectoryIterator it(this->config().getString("source"));
+	DirectoryIterator end;
+	std::cout << "Starting to iterate\n";
+	std::vector<Poco::File> sources;
+	for (; it != end; it++) {
+		if (it->isFile()) {
+			if (Application::hasExtension(*it, ext_source)) {
+				sources.insert(sources.end(), *it);
+			}
+			continue;
+		}
+		if (it->isDirectory()) {
+			auto res = this->iterateSubfolder(*it, ext_source);
+			sources.insert(sources.end(), res.begin(), res.end());
+		}
+	}
+	this->copySource(sources);
+	if (this->config().hasProperty("include")) {
+		//iterate through headers
+		DirectoryIterator it(this->config().getString("include"));
+		DirectoryIterator end;
+		std::cout << "Iterating Headers\n";
+		std::vector<Poco::File> headers;
+		for (; it != end; it++) {
+			if (it->isFile()) {
+				if (Application::hasExtension(*it, ext_headers))
+					headers.insert(headers.end(), *it);
+				continue;
+			}
+			if (it->isDirectory()) {
+				auto res = this->iterateSubfolder(*it, ext_headers);
+				headers.insert(headers.end(), res.begin(), res.end());
+			}
+		}
+		this->copyHeaders(headers);
+	}
+	if (this->config().hasProperty("debugstatic")) {
+		Poco::File debug(this->config().getString("debugstatic"));
+		if (debug.isFile() == false) {
+			std::cout << "Path to Debug Static lib needs to contain the static lib! Will skip this part!\n";
+		}
+		else {
+			if (Application::hasExtension(debug, std::vector<std::string>{"lib"})) {
+				auto target = this->config().getString("targetpack") + "\\debug";
+				(Poco::File(target)).createDirectory();
+				target += "\\static";
+				(Poco::File(target)).createDirectory();
+				debug.copyTo(target + "\\" + Application::getFilename(debug.path()));
+			}
+			else {
+				std::cout << "A Static Lib has to have a .lib Extension! Will skip this part!\n";
+			}
+		}
+	}
+	if (this->config().hasProperty("releasestatic")) {
+		Poco::File release(this->config().getString("releasestatic"));
+		if (release.isFile() == false) {
+			std::cout << "Path to Release Static lib needs to contain the static lib! Will skip this part!\n";
+		}
+		else {
+			if (Application::hasExtension(release, std::vector<std::string>{"lib"})) {
+				auto target = this->config().getString("targetpack") + "\\release";
+				(Poco::File(target)).createDirectory();
+				target += "\\static";
+				(Poco::File(target)).createDirectory();
+				release.copyTo(target + "\\" + Application::getFilename(release.path()));
+			}
+			else {
+				std::cout << "A static lib has to have a .lib Extension! Will skip this part\n";
+			}
+		}
+	}
+	if (this->config().hasProperty("debugdynamic")) {
+		Poco::File debug(this->config().getString("debugdynamic"));
+		if (debug.isDirectory() == false) {
+			std::cout << "The Variable for Dynamic Libraries has to be a Directory which contains the .lib and .dll File! Will skip this part!\n";
+		}
+		else {
+			DirectoryIterator it(debug);
+			DirectoryIterator end;
+			
+			for (; it != end; it++) {
+				if (it->isFile() != true) continue;
+				if (Application::hasExtension(*it, std::vector<std::string>{"lib", "dll"})) {
+					auto target = this->config().getString("targetpack") + "\\dynamic";
+					(Poco::File(target)).createDirectory();
+					target += "\\debug";
+					(Poco::File(target)).createDirectory();
+					it->copyTo(target + "\\" + Application::getFilename(it->path()));
+				}
+
+			}
+		}
+	}
+	if (this->config().hasProperty("releasedynamic")) {
+		Poco::File release(this->config().getString("releasedynamic"));
+		if (release.isDirectory() == false) {
+			std::cout << "The Variable for Dynamic Libraries has to be a Directory which contains the .lib and .dll File! Will skip this part!\n";
+		}
+		else {
+			DirectoryIterator it(release);
+			DirectoryIterator end;
+			for (; it != end; it++) {
+				if (it->isFile() != true) continue;
+				if (Application::hasExtension(*it, std::vector<std::string>{"lib", "dll"})) {
+					auto target = this->config().getString("targetpack") + "\\dynamic";
+					(Poco::File(target)).createDirectory();
+					target += "\\release";
+					(Poco::File(target)).createDirectory();
+					it->copyTo(target + "\\" + Application::getFilename(it->path()));
+				}
+			}
+		}
+	}
+	this->qbuild();
+}
+
+void Application::qbuild() {
+	using namespace SevenZip;
+	std::string fname = this->config().getString("target") + "\\" + this->config().getString("pack") + ".7z";
+	SevenZipLibrary lib;
+	lib.Load("7z.dll");
+	SevenZipCompressor c(lib, fname);
+	c.AddDirectory(this->config().getString("targetpack"), true);
+	c.DoCompress();
+	
+}
+/*
+void Application::build() {
+	auto target = this->config().getString("target");
+	auto pack = this->config().getString("pack");
+	auto filepath = target + "\\" + pack + ".7z";
+	bit7z::Bit7zLibrary lib(L"7z.dll");
+	bit7z::BitCompressor compressor(lib, bit7z::BitFormat::SevenZip);
+	//std::vector<std::wstring> files;
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	//std::string narrow = converter.to_bytes(wide_utf16_source_string);
+	std::wstring wide = converter.from_bytes(target+"\\"+pack);
+	std::wstring _fn = converter.from_bytes(filepath);
+	compressor.compressDirectory(wide,_fn);
+	
+}*/
+
+void Application::copySource(const std::vector<Poco::File>& files) {
+	auto sourcedir = this->config().getString("source");
+	auto targetsrc = this->config().getString("target") +"\\"+this->config().getString("pack");
+	(Poco::File(targetsrc)).createDirectory();
+	this->config().setString("targetpack", targetsrc);
+	targetsrc += "\\src";
+	(Poco::File(targetsrc)).createDirectory();
+	if (sourcedir[sourcedir.length() - 1] == '\\')
+		sourcedir = sourcedir.substr(0, sourcedir.length() - 2);
+	for (auto file : files) {
+		auto remaining = Application::subtractPaths(sourcedir, file.path());
+		auto rm = Application::removeFilename(targetsrc + remaining);
+		if(rm.length() >0)
+			(Poco::File(rm)).createDirectories();
+		file.copyTo(targetsrc + remaining);
+	}
+}
+
+void Application::copyHeaders(const std::vector<Poco::File>& files) {
+	auto includedir = this->config().getString("include");
+	auto targetinc = this->config().getString("targetpack") + "\\include";
+	(Poco::File(targetinc)).createDirectory();
+	if (includedir[includedir.length() - 1] == '\\')
+		includedir = includedir.substr(0, includedir.length() - 2);
+	for (auto file : files) {
+		auto remaining = Application::subtractPaths(includedir, file.path());
+		auto rm = Application::removeFilename(targetinc + remaining);
+		if (rm.length() > 0)
+			(Poco::File(rm)).createDirectories();
+		file.copyTo(targetinc + remaining);
+	}
+}
+
+std::string Application::removeFilename(std::string path) {
+
+	while(path.length()!=0) {
+		if (path[path.length()-1] == '\\') break;
+		path = path.substr(0, path.length() - 1);
+	}
+	return path;
+}
+
+std::string Application::getFilename(std::string path) {
+	std::string temp;
+	for (int i = path.length() - 1; i >= 0; i--) {
+		if (path[i] == '\\') break;
+		temp += path[i];
+	}
+	std::reverse(temp.begin(), temp.end());
+	return temp;
+}
+
+std::string Application::subtractPaths(std::string shorter, std::string longer) {
+	return longer.substr(shorter.length(), longer.length() - 1);
+}
+
+/// <summary>
+/// Determines whether the specified file has the specific extension.
+/// </summary>
+/// <param name="file">The file.</param>
+/// <param name="extension">The extension vector</param>
+/// <returns>
+/// {D255958A-8513-4226-94B9-080D98F904A1}  <c>true</c> if the specified file has the specific extension; otherwise, <c>false</c>.
+/// </returns>
+bool Application::hasExtension(Poco::File& file, const std::vector<std::string>& extension) {
+	std::string temp;
+	auto filename = file.path();
+	for (UINT i = filename.size() - 1; i >= 0; i--) {
+		if (filename[i] == '.')
+			break;
+		temp += filename[i];
+	}
+	std::reverse(temp.begin(), temp.end());
+	return std::find(extension.begin(), extension.end(), temp) == extension.end() ? false : true;
+}
+
+/// <summary>
+/// Iterates the subfolder.
+/// </summary>
+/// <param name="path">The path.</param>
+/// <param name="extension">The extensions.</param>
+/// <returns>A Vector with found files</returns>
+std::vector<Poco::File> Application::iterateSubfolder(const Poco::File& path, const std::vector<std::string>& extension) {
+	using namespace Poco;
+	std::vector<File> result;
+	DirectoryIterator it(path);
+	DirectoryIterator end;
+	for (; it != end; it++) {
+		if (it->isFile()) {
+			if (Application::hasExtension(*it, extension))
+				result.insert(result.end(), *it);
+			continue;
+		}
+		if (it->isDirectory()) {
+			auto res = this->iterateSubfolder(*it, extension);
+			result.insert(result.end(), res.begin(), res.end());
+		}
+	}
+	return result;
+}
+
+
+
+/// <summary>
+/// Clones a GIT Repository
+/// </summary>
+/// <param name="arg">useless</param>
+/// <param name="url">The GIT URL.</param>
 void Application::gitclone(const std::string& arg, const std::string& url) {
 
 	this->action = "GIT";
@@ -82,7 +395,7 @@ void Application::gitclone(const std::string& arg, const std::string& url) {
 void Application::showHelp(const std::string& key, const std::string& val) {
 	Poco::Util::HelpFormatter helpformatter(options());
 	helpformatter.setCommand(commandName());
-	helpformatter.setUsage("OPTIONS");
+	helpformatter.setUsage("OPTIONS libraryname1 libraryname2 libraryname3");
 	helpformatter.setHeader("HELP");
 	helpformatter.format(std::cout);
 }
@@ -177,6 +490,10 @@ bool Application::downloadFile(FuncTarget target, std::string filepath, std::str
 /// <param name="arguments">The arguments.</param>
 /// <returns>ERROR CODE</returns>
 int Application::main(const std::vector<std::string>& arguments) {
+	if (this->action == "package") {
+		this->packCode();
+		return ERROR_SUCCESS;
+	}
 	auto text = this->config().getString("target");
 	if (this->action == "GIT") return ERROR_SUCCESS;
 	std::cout << "Target dir is " << HasOption("target") << '\n'

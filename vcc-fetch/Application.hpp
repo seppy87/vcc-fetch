@@ -1,4 +1,12 @@
 #pragma once
+#define _WINSOCKAPI_   /* Prevent inclusion of winsock.h in windows.h */
+
+
+
+
+#include <string>
+#include<7zpp/7zpp.h>
+
 
 #include<Poco/Util/Application.h>
 #include<Poco/Util/Option.h>
@@ -24,11 +32,16 @@
 #include<Poco/Data/SQLite/Connector.h>
 #include<Poco/SevenZip/Archive.h>
 #include<Poco/Delegate.h>
+#include<Poco/DirectoryIterator.h>
+#include<Poco/File.h>
+#include<Poco/Path.h>
 #include<tuple>
 #include<iostream>
 #include<exception>
 #include<algorithm>
 #include<git2.h>
+
+
 
 enum class FuncTarget : unsigned int {
 	DATABASE_UPDATE = 0,
@@ -66,8 +79,23 @@ protected:
 	void onSevenZipSuccess(const Poco::SevenZip::Archive::ExtractedEventArgs& args);
 	void prepareDependencies();
 	std::string getSourceByLibId(std::string id);
+	//static FUNCS
 	static void removeZeros(std::vector<std::string>& vec);
+	static bool hasExtension(Poco::File& file, const std::vector<std::string>& ext);
+	static std::string getFilename(std::string path);
+	static std::string subtractPaths(std::string shorter, std::string longer);
+	static std::string removeFilename(std::string path);
 
 	//git clone
 	void gitclone(const std::string& arg, const std::string& url);
+
+	//create package
+	void packCode();
+	void setPackAction(const std::string& arg, const std::string& value);
+	void packCPP();
+	std::vector<Poco::File> iterateSubfolder(const Poco::File& path, const std::vector<std::string>& extension);
+	void copySource(const std::vector<Poco::File>& files);
+	void copyHeaders(const std::vector<Poco::File>& files);
+	//void build();
+	void qbuild();
 };
